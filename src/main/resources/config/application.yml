@@ -1,0 +1,45 @@
+project.name: @project.name@
+weather.forecast.appName: @project.name@
+weather.forecast.appVersion: @project.version@
+weather.forecast.genericErrorMessage: "Something went wrong. Please try after sometime."
+
+weather.forecast.actuatorEndpointsUser: ${ACTUATOR_ENDPOINTS_USER:user}
+weather.forecast.actuatorEndpointsUserPassword: ${ACTUATOR_ENDPOINTS_USER_PASSWORD:password}
+
+weather.forecast.fetchForeCastFromOpenWeather: ${FETCH_FORECAST_FROM_OPEN_WEATHER:true}
+weather.forecast.openWeatherApiId: ${OPEN_WEATHER_API_ID:d2929e9483efc82c82c32ee7e02d563e}
+
+weather.forecast.connectionTimeOut: ${CONNECT_TIMEOUT:5000}
+weather.forecast.requestTimeOut: ${REQUEST_TIMEOUT:5000}
+weather.forecast.socketTimeOut: ${SOCKET_TIMEOUT:10000}
+weather.forecast.maxConnections: ${MAX_CONN_TOTAL:500}
+weather.forecast.maxConnectionPerRoute: ${MAX_CONN_PER_ROUTE:400}
+
+management.endpoints.web.exposure.include: "*"
+
+
+---
+spring.profiles: local
+
+---
+spring.profiles: development
+
+---
+spring.profiles: qa
+weather.forecast.graylogHost: ${GRAYLOG_HOST}
+weather.forecast.graylogPort: ${GRAYLOG_PORT}
+
+---
+spring.profiles: uat
+
+---
+spring.profiles: rfs
+weather.forecast.graylogHost: ${GRAYLOG_HOST}
+weather.forecast.graylogPort: ${GRAYLOG_PORT}
+
+---
+spring.profiles: production
+weather.forecast.graylogHost: ${GRAYLOG_HOST}
+weather.forecast.graylogPort: ${GRAYLOG_PORT}
+
+

@@ -1,0 +1,286 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <!-- uncomment this line if we want to use spring boot default logback configuration
+        currently we don't want to use default configuration and indeed specified custom configuration
+        NOTE: If below line is uncommented than logs will be duplicated
+        Instead we imported defaults.xml and specified our own appender -->
+    <!--<include resource="org/springframework/boot/logging/logback/base.xml"/> -->
+
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+
+    <springProperty name="catalinaHome" source="weather.forecast.catalinaHome"/>
+    <springProperty name="graylogHost" source="weather.forecast.graylogHost" defaultValue="localhost"/>
+    <springProperty name="graylogPort" source="weather.forecast.graylogPort" defaultValue="12201"/>
+
+    <!-- spring production logger, disable console logger only file logger -->
+    <springProfile name="production">
+    	<appender name="GELF" class="de.siegmar.logbackgelf.GelfTcpAppender">
+            <graylogHost>${graylogHost}</graylogHost>
+            <graylogPort>${graylogPort}</graylogPort>
+            <connectTimeout>5000</connectTimeout>
+            <reconnectInterval>300</reconnectInterval>
+            <maxRetries>2</maxRetries>
+            <retryDelay>3000</retryDelay>
+            <poolSize>5</poolSize>
+            <poolMaxWaitTime>1000</poolMaxWaitTime>
+            <layout class="de.siegmar.logbackgelf.GelfLayout">
+                <includeRawMessage>true</includeRawMessage>
+                <includeMarker>true</includeMarker>
+                <includeMdcData>true</includeMdcData>
+                <includeCallerData>true</includeCallerData>
+                <includeRootCauseData>true</includeRootCauseData>
+                <includeLevelName>true</includeLevelName>
+                <shortPatternLayout class="ch.qos.logback.classic.PatternLayout">
+                    <pattern>%m%nopex</pattern>
+                </shortPatternLayout>
+                <fullPatternLayout class="ch.qos.logback.classic.PatternLayout">
+                    <pattern>stackTrace</pattern>
+                </fullPatternLayout>
+                <staticField>app_name:weather.forecast</staticField>
+                <staticField>os_arch:${os.arch}</staticField>
+                <staticField>os_name:${os.name}</staticField>
+                <staticField>os_version:${os.version}</staticField>
+            </layout>
+        </appender>
+
+        <appender name="ASYNC_GELF" class="ch.qos.logback.classic.AsyncAppender">
+            <appender-ref ref="GELF"/>
+        </appender>
+    	
+
+        <appender name="WEATHER_FORECAST_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender" additivity="false">
+            <file>logs/weatherForecast/weatherForecast.log</file>
+            <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+                <!-- daily rollover. Make sure the path matches the one in the file element or else
+                 the rollover logs are placed in the working directory. -->
+                <fileNamePattern>logs/weatherForecast/weatherForecast_%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+
+                <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                    <maxFileSize>5MB</maxFileSize>
+                </timeBasedFileNamingAndTriggeringPolicy>
+                <!-- keep 7 days' worth of history -->
+                <maxHistory>7</maxHistory>
+            </rollingPolicy>
+
+            <encoder>
+                <charset>UTF-8</charset>
+                <Pattern>${CONSOLE_LOG_PATTERN}</Pattern>
+            </encoder>
+        </appender>
+
+        <root level="INFO">
+            <appender-ref ref="WEATHER_FORECAST_FILE"/>
+            <appender-ref ref="ASYNC_GELF"/>
+        </root>
+    </springProfile>
+
+    <springProfile name="development">
+
+        <appender name="WEATHER_FORECAST_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender" additivity="false">
+            <file>logs/weatherForecast/weatherForecast.log</file>
+            <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+                <!-- daily rollover. Make sure the path matches the one in the file element or else
+                 the rollover logs are placed in the working directory. -->
+                <fileNamePattern>logs/weatherForecast/weatherForecast_%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+
+                <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                    <maxFileSize>5MB</maxFileSize>
+                </timeBasedFileNamingAndTriggeringPolicy>
+                <!-- keep 7 days' worth of history -->
+                <maxHistory>7</maxHistory>
+            </rollingPolicy>
+
+            <encoder>
+                <charset>UTF-8</charset>
+                <Pattern>${CONSOLE_LOG_PATTERN}</Pattern>
+            </encoder>
+        </appender>
+
+        <root level="DEBUG">
+            <appender-ref ref="WEATHER_FORECAST_FILE"/>
+        </root>
+
+    </springProfile>
+
+    <springProfile name="qa">
+    
+        <appender name="GELF" class="de.siegmar.logbackgelf.GelfTcpAppender">
+            <graylogHost>${graylogHost}</graylogHost>
+            <graylogPort>${graylogPort}</graylogPort>
+            <connectTimeout>5000</connectTimeout>
+            <reconnectInterval>300</reconnectInterval>
+            <maxRetries>2</maxRetries>
+            <retryDelay>3000</retryDelay>
+            <poolSize>5</poolSize>
+            <poolMaxWaitTime>1000</poolMaxWaitTime>
+            <layout class="de.siegmar.logbackgelf.GelfLayout">
+                <includeRawMessage>true</includeRawMessage>
+                <includeMarker>true</includeMarker>
+                <includeMdcData>true</includeMdcData>
+                <includeCallerData>true</includeCallerData>
+                <includeRootCauseData>true</includeRootCauseData>
+                <includeLevelName>true</includeLevelName>
+                <shortPatternLayout class="ch.qos.logback.classic.PatternLayout">
+                    <pattern>%m%nopex</pattern>
+                </shortPatternLayout>
+                <fullPatternLayout class="ch.qos.logback.classic.PatternLayout">
+                    <pattern>stackTrace</pattern>
+                </fullPatternLayout>
+                <staticField>app_name:weatherForecast</staticField>
+                <staticField>os_arch:${os.arch}</staticField>
+                <staticField>os_name:${os.name}</staticField>
+                <staticField>os_version:${os.version}</staticField>
+            </layout>
+        </appender>
+
+        <appender name="ASYNC_GELF" class="ch.qos.logback.classic.AsyncAppender">
+            <appender-ref ref="GELF"/>
+        </appender>
+        
+
+        <appender name="WEATHER_FORECAST_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender" additivity="false">
+            <file>logs/weatherForecast/weatherForecast.log</file>
+            <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+                <!-- daily rollover. Make sure the path matches the one in the file element or else
+                 the rollover logs are placed in the working directory. -->
+                <fileNamePattern>logs/weatherForecast/weatherForecast_%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+
+                <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                    <maxFileSize>5MB</maxFileSize>
+                </timeBasedFileNamingAndTriggeringPolicy>
+                <!-- keep 7 days' worth of history -->
+                <maxHistory>7</maxHistory>
+            </rollingPolicy>
+
+            <encoder>
+                <charset>UTF-8</charset>
+                <Pattern>${CONSOLE_LOG_PATTERN}</Pattern>
+            </encoder>
+        </appender>
+
+        <root level="INFO">
+            <appender-ref ref="WEATHER_FORECAST_FILE"/>
+            <appender-ref ref="ASYNC_GELF"/>
+        </root>
+
+    </springProfile>
+
+    <springProfile name="uat">
+
+        <appender name="WEATHER_FORECAST_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender" additivity="false">
+            <file>logs/weatherForecast/weatherForecast.log</file>
+            <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+                <!-- daily rollover. Make sure the path matches the one in the file element or else
+                 the rollover logs are placed in the working directory. -->
+                <fileNamePattern>logs/weatherForecast/weatherForecast_%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+
+                <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                    <maxFileSize>5MB</maxFileSize>
+                </timeBasedFileNamingAndTriggeringPolicy>
+                <!-- keep 7 days' worth of history -->
+                <maxHistory>7</maxHistory>
+            </rollingPolicy>
+
+            <encoder>
+                <charset>UTF-8</charset>
+                <Pattern>${CONSOLE_LOG_PATTERN}</Pattern>
+            </encoder>
+        </appender>
+
+        <root level="INFO">
+            <appender-ref ref="WEATHER_FORECAST_FILE"/>
+        </root>
+
+    </springProfile>
+
+    <springProfile name="rfs">
+
+        <appender name="WEATHER_FORECAST_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender" additivity="false">
+            <file>logs/weatherForecast/weatherForecast.log</file>
+            <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+                <!-- daily rollover. Make sure the path matches the one in the file element or else
+                 the rollover logs are placed in the working directory. -->
+                <fileNamePattern>logs/weatherForecast/weatherForecast_%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+
+                <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                    <maxFileSize>5MB</maxFileSize>
+                </timeBasedFileNamingAndTriggeringPolicy>
+                <!-- keep 7 days' worth of history -->
+                <maxHistory>7</maxHistory>
+            </rollingPolicy>
+
+            <encoder>
+                <charset>UTF-8</charset>
+                <Pattern>${CONSOLE_LOG_PATTERN}</Pattern>
+            </encoder>
+        </appender>
+        
+        <appender name="GELF" class="de.siegmar.logbackgelf.GelfTcpAppender">
+            <graylogHost>${graylogHost}</graylogHost>
+            <graylogPort>${graylogPort}</graylogPort>
+            <connectTimeout>5000</connectTimeout>
+            <reconnectInterval>300</reconnectInterval>
+            <maxRetries>2</maxRetries>
+            <retryDelay>3000</retryDelay>
+            <poolSize>5</poolSize>
+            <poolMaxWaitTime>1000</poolMaxWaitTime>
+            <layout class="de.siegmar.logbackgelf.GelfLayout">
+                <includeRawMessage>true</includeRawMessage>
+                <includeMarker>true</includeMarker>
+                <includeMdcData>true</includeMdcData>
+                <includeCallerData>true</includeCallerData>
+                <includeRootCauseData>true</includeRootCauseData>
+                <includeLevelName>true</includeLevelName>
+                <shortPatternLayout class="ch.qos.logback.classic.PatternLayout">
+                    <pattern>%m%nopex</pattern>
+                </shortPatternLayout>
+                <fullPatternLayout class="ch.qos.logback.classic.PatternLayout">
+                    <pattern>stackTrace</pattern>
+                </fullPatternLayout>
+                <staticField>app_name:weatherForecast</staticField>
+                <staticField>os_arch:${os.arch}</staticField>
+                <staticField>os_name:${os.name}</staticField>
+                <staticField>os_version:${os.version}</staticField>
+            </layout>
+        </appender>
+
+        <appender name="ASYNC_GELF" class="ch.qos.logback.classic.AsyncAppender">
+            <appender-ref ref="GELF"/>
+        </appender>
+        
+
+        <root level="INFO">
+            <appender-ref ref="WEATHER_FORECAST_FILE"/>
+        </root>
+
+    </springProfile>
+
+    <springProfile name="local">
+        <!-- configuration to be enabled when the "development", "local" profile is active -->
+        <appender name="WEATHER_FORECAST_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender" additivity="false">
+            <file>logs/weatherForecast/weatherForecast.log</file>
+            <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+                <!-- daily rollover. Make sure the path matches the one in the file element or else
+                 the rollover logs are placed in the working directory. -->
+                <fileNamePattern>logs/weatherForecast/weatherForecast_%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+
+                <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                    <maxFileSize>5MB</maxFileSize>
+                </timeBasedFileNamingAndTriggeringPolicy>
+                <!-- keep 7 days' worth of history -->
+                <maxHistory>7</maxHistory>
+            </rollingPolicy>
+
+            <encoder>
+                <charset>UTF-8</charset>
+                <Pattern>${CONSOLE_LOG_PATTERN}</Pattern>
+            </encoder>
+        </appender>
+
+        <root name="ROOT" level="INFO">
+            <appender-ref ref="WEATHER_FORECAST_FILE"/>
+        </root>
+
+    </springProfile>
+</configuration>
