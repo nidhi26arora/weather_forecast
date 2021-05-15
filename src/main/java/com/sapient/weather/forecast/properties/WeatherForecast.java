@@ -90,5 +90,6 @@ public class WeatherForecast {
     private String openWeatherApiId;
     
     
+    private Integer noOfDaysForecast;
     
 }

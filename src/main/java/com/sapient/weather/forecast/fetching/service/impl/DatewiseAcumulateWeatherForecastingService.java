@@ -13,6 +13,7 @@ import com.sapient.weather.forecast.exception.ApiException;
 import com.sapient.weather.forecast.fetching.dto.WeatherForecastFetchRequest;
 import com.sapient.weather.forecast.fetching.dto.WeatherForecastFetchResponse;
 import com.sapient.weather.forecast.fetching.service.WeatherForecastFetchingService;
+import com.sapient.weather.forecast.properties.WeatherForecast;
 
 @Service("datewiseAcumulateWeatherForecastingService")
 public class DatewiseAcumulateWeatherForecastingService implements WeatherForecastFetchingService{
@@ -20,6 +21,9 @@ public class DatewiseAcumulateWeatherForecastingService implements WeatherForeca
 	@Autowired
 	@Qualifier("actualWeatherForecastFetchinhService")
 	private WeatherForecastFetchingService weatherForecastFetchingService;
+	
+	@Autowired
+	private WeatherForecast weatherForecast;
 	
 	@Override
 	public List<WeatherForecastFetchResponse> fetchForecast(WeatherForecastFetchRequest weatherForecastFetchRequest) throws ApiException {
@@ -42,6 +46,9 @@ public class DatewiseAcumulateWeatherForecastingService implements WeatherForeca
 				curMinTime = maxTime;
 				maxTime = curMinTime + (24 *60*60);
 				actumilatedResponses.add(actumilatedResponse);
+				if(actumilatedResponses.size()==weatherForecast.getNoOfDaysForecast()){
+					break;
+				}
 				actumilatedResponse = new WeatherForecastFetchResponse();
 			}else{
 				if(actumilatedResponse.getMinTemp()>weatherForecastFetchResponse.getTemprature()){

@@ -14,6 +14,7 @@ weather.forecast.requestTimeOut: ${REQUEST_TIMEOUT:5000}
 weather.forecast.socketTimeOut: ${SOCKET_TIMEOUT:10000}
 weather.forecast.maxConnections: ${MAX_CONN_TOTAL:500}
 weather.forecast.maxConnectionPerRoute: ${MAX_CONN_PER_ROUTE:400}
+weather.forecast.noOfDaysForecast: ${NO_OF_DAYS_FORECAST:3}
 
 management.endpoints.web.exposure.include: "*"
 
